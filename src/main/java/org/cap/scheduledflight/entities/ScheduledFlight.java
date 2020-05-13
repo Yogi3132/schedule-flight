@@ -12,8 +12,12 @@ public class ScheduledFlight {
     @Id
     @GeneratedValue
     private int schedule_flight_id;
+
     private BigInteger flightnumber;
     private int availableseats;
+
+    @OneToOne
+    private Schedule schedule;
 
 
     public BigInteger getFlightnumber() {
@@ -33,8 +37,6 @@ public class ScheduledFlight {
     }
 
 
-    @OneToOne
-    private Schedule schedule;
     public Schedule getSchedule() {
         return schedule;
     }

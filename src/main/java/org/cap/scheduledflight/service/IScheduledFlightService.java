@@ -1,7 +1,6 @@
 package org.cap.scheduledflight.service;
 
 
-
 import org.cap.scheduledflight.entities.Schedule;
 import org.cap.scheduledflight.entities.ScheduledFlight;
 
@@ -21,8 +20,6 @@ public interface IScheduledFlightService {
     ScheduledFlight modifyScheduledFlight(BigInteger flightNumber, Schedule schedule, int availableseats);  //modify schedule on the basis of flight
 
     Boolean deleteScheduledFlight(BigInteger flightNumber); //delete scheduledfight on the basis of flightnumber
-
-
 
 
 }

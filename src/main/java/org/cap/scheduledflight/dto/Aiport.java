@@ -1,24 +1,38 @@
 package org.cap.scheduledflight.dto;
 
+import java.math.BigInteger;
+
 public class Aiport {
 
 
-    private String airportCode;
-    private String airportLocation;
+    public String getSourceairportName() {
+        return sourceairportName;
+    }
 
-    public String getAirportCode() {
+    public void setSourceairportName(String sourceairportName) {
+        this.sourceairportName = sourceairportName;
+    }
+
+    private String sourceairportName;
+
+    public String getDestinationairportName() {
+        return destinationairportName;
+    }
+
+    public void setDestinationairportName(String destinationairportName) {
+        this.destinationairportName = destinationairportName;
+    }
+
+    private String destinationairportName;
+
+
+    public BigInteger getAirportCode() {
         return airportCode;
     }
 
-    public void setAirportCode(String airportCode) {
+    public void setAirportCode(BigInteger airportCode) {
         this.airportCode = airportCode;
     }
 
-    public String getAirportLocation() {
-        return airportLocation;
-    }
-
-    public void setAirportLocation(String airportLocation) {
-        this.airportLocation = airportLocation;
-    }
+    private BigInteger airportCode;
 }

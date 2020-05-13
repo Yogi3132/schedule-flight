@@ -1,22 +1,17 @@
 package org.cap.scheduledflight.dto;
 
+import java.math.BigInteger;
+
 public class Flight {
-    private  int seatCapacity;
-    private String carrierName;
-
-    public int getSeatCapacity() {
-        return seatCapacity;
+    public BigInteger getFlightnumber() {
+        return flightnumber;
     }
 
-    public void setSeatCapacity(int seatCapacity) {
-        this.seatCapacity = seatCapacity;
+    public void setFlightnumber(BigInteger flightnumber) {
+        this.flightnumber = flightnumber;
     }
 
-    public String getCarrierName() {
-        return carrierName;
-    }
+    private BigInteger flightnumber;
 
-    public void setCarrierName(String carrierName) {
-        this.carrierName = carrierName;
-    }
+
 }

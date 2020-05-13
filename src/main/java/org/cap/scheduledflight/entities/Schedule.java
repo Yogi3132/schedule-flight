@@ -1,53 +1,63 @@
 package org.cap.scheduledflight.entities;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "schedule")
 public class Schedule {
 
-
     @Id
-    @GeneratedValue
-    private int scheduleId;
-    private String airportName;
-    private LocalDate arrivalTime;
-    private LocalDate departureTime;
+    private int scheduleid;
+
+    private String sourceAirportName;
+    private String destinationAirportName;
+    private LocalDateTime arrivalDateTime;
+    private LocalDateTime departureDateTime;
 
 
-    public int getScheduleId() {
-        return scheduleId;
+    public LocalDateTime getDeparturedatetime() {
+        return departureDateTime;
     }
 
-    public void setScheduleId(int scheduleId) {
-        this.scheduleId = scheduleId;
+    public LocalDateTime getArrivalDateTime() {
+        return arrivalDateTime;
     }
 
-    public String getAirportName() {
-        return airportName;
+    public void setArrivalDateTime(LocalDateTime arrivalDateTime) {
+        this.arrivalDateTime = arrivalDateTime;
     }
 
-    public void setAirportName(String airportName) {
-        this.airportName = airportName;
+    public void setDeparturedatetime(LocalDateTime departuredatetime) {
+        this.departureDateTime = departuredatetime;
     }
 
-    public LocalDate getArrivalTime() {
-        return arrivalTime;
+
+    public String getSourceAirportName() {
+        return sourceAirportName;
     }
 
-    public void setArrivalTime(LocalDate arrivalTime) {
-        this.arrivalTime = arrivalTime;
+    public void setSourceAirportName(String sourceAirportName) {
+        this.sourceAirportName = sourceAirportName;
     }
 
-    public LocalDate getDepartureTime() {
-        return departureTime;
+    public String getDestinationAirportName() {
+        return destinationAirportName;
     }
 
-    public void setDepartureTime(LocalDate departureTime) {
-        this.departureTime = departureTime;
+    public void setDestinationAirportName(String destinationAirportName) {
+        this.destinationAirportName = destinationAirportName;
     }
+
+    public int getScheduleid() {
+        return scheduleid;
+    }
+
+    public void setScheduleid(int scheduleid) {
+        this.scheduleid = scheduleid;
+    }
+
+
 }
