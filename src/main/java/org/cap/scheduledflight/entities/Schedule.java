@@ -1,6 +1,9 @@
 package org.cap.scheduledflight.entities;
 
+import org.springframework.web.bind.annotation.GetMapping;
+
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
@@ -10,6 +13,7 @@ import java.time.LocalDateTime;
 public class Schedule {
 
     @Id
+    @GeneratedValue
     private int scheduleid;
 
     private String sourceAirportName;

@@ -72,6 +72,7 @@ public class ScheduledFlightServiceImpl implements IScheduledFlightService {
     }
 
 
+
     @Override
     public ScheduledFlight modifyScheduledFlight(BigInteger flightNumber, Schedule schedule, int availableseats) {
         ScheduledFlight scheduledFlight = findbyflightnumber(flightNumber);
@@ -81,6 +82,7 @@ public class ScheduledFlightServiceImpl implements IScheduledFlightService {
         scheduledao.save(schedule);
         return scheduledFlight;
     }
+
 
     @Override
     public Boolean deleteScheduledFlight(BigInteger flightNumber) {

@@ -8,6 +8,7 @@ import org.cap.scheduledflight.entities.Schedule;
 import org.cap.scheduledflight.entities.ScheduledFlight;
 import org.cap.scheduledflight.exceptions.ScheduledFlightNotFoundException;
 import org.cap.scheduledflight.service.IScheduledFlightService;
+import org.cap.scheduledflight.util.ScheduleFlightUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,10 +27,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/scheduledflights")
 public class ScheduledFlightController {
+    private static final Logger Log = LoggerFactory.getLogger(ScheduledFlightController.class);
+
     @Autowired
     private IScheduledFlightService scheduledFlightService;
 
-    private static final Logger Log = LoggerFactory.getLogger(ScheduledFlightController.class);
+   private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 
 
     @PostMapping("/add")
@@ -38,58 +42,30 @@ public class ScheduledFlightController {
         scheduledFlight.setFlightnumber(requestdata.getFlightnumber());
         scheduledFlight.setAvailableseats(requestdata.getAvailableseats());
         Schedule schedule = new Schedule();
-        schedule.setSourceAirportName(requestdata.getSourceAiportName());
-        schedule.setDestinationAirportName(requestdata.getDestinationAirportName());
         scheduledFlight.setSchedule(schedule);
 
 
         String arrivalTimeString = requestdata.getArrivaldatetime();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm");
         LocalDateTime arrivalDateTime = LocalDateTime.parse(arrivalTimeString, formatter);
-        schedule.setDeparturedatetime(arrivalDateTime);
+        schedule.setArrivalDateTime(arrivalDateTime);
 
-        String departureTimeString = requestdata.getArrivaldatetime();
-        DateTimeFormatter formatters = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm");
-        LocalDateTime departureDateTime = LocalDateTime.parse(departureTimeString, formatters);
+        //Log.info("inside add arrival="+arrivalTimeString);
+        String departureTimeString = requestdata.getDeparturedatetime();
+        LocalDateTime departureDateTime = LocalDateTime.parse(departureTimeString, formatter);
         schedule.setDeparturedatetime(departureDateTime);
 
+        schedule.setDestinationAirportName(requestdata.getDestinationairportname());
+        schedule.setSourceAirportName(requestdata.getSourceairportname());
+        //Log.info("inside add departure="+departureTimeString);
+
         scheduledFlightService.addscheduledFlight(scheduledFlight);
-        ScheduledFlightDetailsDto scheduledFlightDetailsDto = convertToResponseDto(scheduledFlight, requestdata.getAirportCode());
+        ScheduledFlightDetailsDto scheduledFlightDetailsDto = ScheduleFlightUtil.scheduleFlightDetails(scheduledFlight);
         ResponseEntity<ScheduledFlightDetailsDto> response = new ResponseEntity<>(scheduledFlightDetailsDto, HttpStatus.OK);
         return response;
     }
 
 
-    private ScheduledFlightDetailsDto convertToResponseDto(ScheduledFlight scheduledFlight, BigInteger airportCode) {
-        ScheduledFlightDetailsDto scheduledFlightDetailsDto = new ScheduledFlightDetailsDto();
-        scheduledFlightDetailsDto.setAvailableseats(scheduledFlight.getAvailableseats());
-
-        //Flight
-        Flight flight = getFlightDetails(scheduledFlightDetailsDto.getFlightnumber());
-        scheduledFlightDetailsDto.setFlightnumber(flight.getFlightnumber());
-        //Airport
-        Aiport airport = fetchairportbyairportCode(airportCode);
-        scheduledFlightDetailsDto.setSourceairport(airport.getSourceairportName());
-        scheduledFlightDetailsDto.setDestinationairport(airport.getDestinationairportName());
-
-        //  Schedule
-      //  Schedule schedule = new Schedule();
-       // LocalDateTime arrivalDateTimelocal = schedule.getArrivalDateTime();
-        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm");
-        //String arrivalDateTime= arrivalDateTimelocal.format(formatter);
-        //scheduledFlightDetailsDto.setArrivaldatetime(arrivalDateTime);
-
-
-       // LocalDateTime departureDateTimelocal = schedule.getArrivalDateTime();
-        //DateTimeFormatter formatters = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm");
-        //String departuredateTime= arrivalDateTimelocal.format(formatters);
-        //scheduledFlightDetailsDto.setArrivaldatetime(departuredateTime);
-
-        return scheduledFlightDetailsDto;
-    }
-
-
-    private Aiport fetchairportbyairportCode(BigInteger airportCode) {
+    private Aiport fetchAirportbyAirportCode(BigInteger airportCode) {
         Aiport airport = new Aiport();
         airport.setAirportCode(new BigInteger("100"));
         airport.setSourceairportName("RAJA BHOJ");
@@ -108,9 +84,10 @@ public class ScheduledFlightController {
 
 
     @GetMapping("/get/{flightnumber}")
-    public ResponseEntity<ScheduledFlight> getScheduledflightsByflightnumber(@PathVariable("flightnumber") BigInteger flightnumber) {
+    public ResponseEntity<ScheduledFlightDetailsDto> getScheduledflightsByflightnumber(@PathVariable("flightnumber") BigInteger flightnumber) {
         ScheduledFlight scheduledFlight = scheduledFlightService.viewScheduledFlights(flightnumber);
-        ResponseEntity<ScheduledFlight> response = new ResponseEntity<>(scheduledFlight, HttpStatus.OK);
+        ScheduledFlightDetailsDto details=ScheduleFlightUtil.scheduleFlightDetails(scheduledFlight);
+        ResponseEntity<ScheduledFlightDetailsDto> response = new ResponseEntity<>(details, HttpStatus.OK);
         return response;
     }
 
@@ -119,7 +96,7 @@ public class ScheduledFlightController {
     public ResponseEntity<List<ScheduledFlight>> fetchFlightsbetweenSrcandDest(@PathVariable String src,
                                                                                @PathVariable String dest,
                                                                                String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         LocalDate arrivalDate = LocalDate.parse(date, formatter);
         List<ScheduledFlight> scheduledFlights = scheduledFlightService.viewScheduledFlights(src, dest, arrivalDate);
         ResponseEntity<List<ScheduledFlight>> response = new ResponseEntity<>(scheduledFlights, HttpStatus.OK);
@@ -142,42 +119,28 @@ public class ScheduledFlightController {
 
 
     @GetMapping
-    public ResponseEntity<List<ScheduledFlight>> fetchScheduledflights() {
+    public ResponseEntity<List<ScheduledFlightDetailsDto>> fetchScheduledflights() {
         List<ScheduledFlight> scheduledFlights = scheduledFlightService.viewScheduledFlight();
-        ResponseEntity<List<ScheduledFlight>> response = new ResponseEntity<>(scheduledFlights, HttpStatus.OK);
+        List<ScheduledFlightDetailsDto>scheduledFlightDetails=ScheduleFlightUtil.scheduleFlightDetails(scheduledFlights);
+        ResponseEntity<List<ScheduledFlightDetailsDto>> response = new ResponseEntity<>(scheduledFlightDetails, HttpStatus.OK);
         return response;
     }
 
-/*
-       @PutMapping("/modify/{flightnumber}")
-       ResponseEntity<ScheduledFlightDetailsDto> modify(@PathVariable("flightnumber") BigInteger flightnumber, @Valid @RequestBody CreateScheduleRequest dto) {
-           ScheduledFlightDetailsDto scheduledFlightDetailsDto = convertToResponseDto(dto,flightnumber);
-          ScheduledFlight scheduledFlight = scheduledFlightService.viewScheduledFlights(flightnumber);
-           scheduledFlight.setAvailableseats(dto.getAvailableseats());
-           Schedule schedule = new Schedule();
-           schedule.setSourceairportName(dto.getSourceAiportName());
-           schedule.setDestinationairportName(dto.getDestinationAirportName());
+
+    @PutMapping("/modify/{flightnumber}")
+    ResponseEntity<ScheduledFlightDetailsDto> modify(@PathVariable("flightnumber") BigInteger flightNumber,
+                                                     @PathVariable("schedule") Schedule schedule,
+                                                     @PathVariable("availableseats") int availableseats) {
+        ScheduledFlight scheduledFlight = scheduledFlightService.viewScheduledFlights(flightNumber);
+        scheduledFlightService.modifyScheduledFlight(flightNumber,schedule,availableseats);
+       ScheduledFlightDetailsDto  scheduledFlightDetailsDto =ScheduleFlightUtil.scheduleFlightDetailsmodfiy(flightNumber,schedule,availableseats);
+        ResponseEntity<ScheduledFlightDetailsDto> response = new ResponseEntity<>(scheduledFlightDetailsDto, HttpStatus.OK);
+        return response;
 
 
 
-           String arrivalTimeString=dto.getArrivaldatetime();
-           DateTimeFormatter formatter =DateTimeFormatter.ofPattern("dd-MM-yy hh:mm");
-           LocalDateTime arrivalDateTime=LocalDateTime.parse(arrivalTimeString,formatter);
-           schedule.setArrivaldatetime(arrivalDateTime);
+    }
 
-           String departureTimeString=dto.getArrivaldatetime();
-           DateTimeFormatter formatters =DateTimeFormatter.ofPattern("dd-MM-yy hh:mm");
-           LocalDateTime departureDateTime=LocalDateTime.parse(departureTimeString,formatters);
-           schedule.setDeparturedatetime(departureDateTime);
-
-           scheduledFlightService.modifyScheduledFlight(flightnumber,schedule,scheduledFlight.getAvailableseats());
-
-           ResponseEntity<ScheduledFlightDetailsDto> response = new ResponseEntity<>(scheduledFlightDetailsDto, HttpStatus.OK);
-           return response;
-
-       }
-
-*/
 
 
     @ExceptionHandler(ScheduledFlightNotFoundException.class)

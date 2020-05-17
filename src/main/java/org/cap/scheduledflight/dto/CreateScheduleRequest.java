@@ -10,8 +10,18 @@ public class CreateScheduleRequest {
     private String arrivaldatetime;
     private String departuredatetime;
     private BigInteger airportCode;
-    private String sourceAiportName;
-    private String destinationAirportName;
+    private String sourceairportname;
+    private String destinationairportname;
+
+
+    public String getSourceairportname() {
+        return sourceairportname;
+    }
+
+    public void setSourceairportname(String sourceairportname) {
+        this.sourceairportname = sourceairportname;
+    }
+
 
     public String getDeparturedatetime() {
         return departuredatetime;
@@ -22,20 +32,14 @@ public class CreateScheduleRequest {
     }
 
 
-    public String getSourceAiportName() {
-        return sourceAiportName;
+
+
+    public String getDestinationairportname() {
+        return destinationairportname;
     }
 
-    public void setSourceAiportName(String sourceAiportName) {
-        this.sourceAiportName = sourceAiportName;
-    }
-
-    public String getDestinationAirportName() {
-        return destinationAirportName;
-    }
-
-    public void setDestinationAirportName(String destinationAirportName) {
-        this.destinationAirportName = destinationAirportName;
+    public void setDestinationairportname(String destinationairportname) {
+        this.destinationairportname = destinationairportname;
     }
 
 
